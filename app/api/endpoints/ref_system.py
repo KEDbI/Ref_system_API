@@ -51,8 +51,8 @@ async def get_ref_link_by_email(email: str,
 
 
 @ref_system_router.get('/get_referrals_by_referrer_id/{referrer_id}')
-async def get_referrals_by_referrer_id(referrer_id: str,
+async def get_referrals_by_referrer_id(referrer_id: int,
                           ref_system_service: RefSystemService = Depends(get_ref_system_service),
                           current_user: str = Depends(get_user_from_token)):
-    return {'message': await ref_system_service.get_referrals_by_referrer_id(referrer_id=int(referrer_id))}
+    return {'message': await ref_system_service.get_referrals_by_referrer_id(referrer_id=referrer_id)}
 
