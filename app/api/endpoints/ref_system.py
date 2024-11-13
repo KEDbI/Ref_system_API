@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from typing import Annotated
@@ -34,25 +34,25 @@ async def login(user_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 async def update_ref_link(ref_link_exp: UpdateRefLink,
                           ref_system_service: RefSystemService = Depends(get_ref_system_service),
                           current_user: str = Depends(get_user_from_token)):
-    return ref_system_service.update_ref_link(user=current_user, ref_link_exp_days=ref_link_exp)
+    return await ref_system_service.update_ref_link(user=current_user, ref_link_exp_days=ref_link_exp)
 
 
 @ref_system_router.delete('/delete_ref_link', response_model=UserResponse)
 async def delete_ref_link(ref_system_service: RefSystemService = Depends(get_ref_system_service),
                           current_user: str = Depends(get_user_from_token)):
-    return ref_system_service.delete_ref_link(current_user)
+    return await ref_system_service.delete_ref_link(current_user)
 
 
-@ref_system_router.get('/get_ref_link_by_email', response_model=GetRefLinkByEmailResponse)
-async def get_ref_link_by_email(email: GetRefLinkByEmail,
+@ref_system_router.get('/get_ref_link_by_email/{email}', response_model=GetRefLinkByEmailResponse)
+async def get_ref_link_by_email(email: str,
                           ref_system_service: RefSystemService = Depends(get_ref_system_service),
                           current_user: str = Depends(get_user_from_token)):
-    return ref_system_service.get_ref_link_by_email(email=email)
+    return await ref_system_service.get_ref_link_by_email(email=email)
 
 
-@ref_system_router.get('/get_referrals_by_referrer_id', response_model=UserResponse)
-async def get_referrals_by_referrer_id(user_id: GetReferralsById,
+@ref_system_router.get('/get_referrals_by_referrer_id/{referrer_id}')
+async def get_referrals_by_referrer_id(referrer_id: str,
                           ref_system_service: RefSystemService = Depends(get_ref_system_service),
                           current_user: str = Depends(get_user_from_token)):
-    return ref_system_service.get_referrals_by_referrer_id(user_id=user_id)
+    return {'message': await ref_system_service.get_referrals_by_referrer_id(referrer_id=int(referrer_id))}
 

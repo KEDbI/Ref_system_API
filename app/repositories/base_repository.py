@@ -35,7 +35,7 @@ class Repository(AbstractRepository):
     async def select_one(self, filters: dict):
         query = select(self.model).filter_by(**filters)
         res = await self.session.execute(query)
-        return res.scalars().all()
+        return res.scalar()
 
     async def select_many(self, filters: dict):
         query = select(self.model).filter_by(**filters)

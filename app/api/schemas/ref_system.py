@@ -16,4 +16,4 @@ class GetReferralsById(BaseModel):
 class UpdateRefLink(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    ref_link_exp_days: int = 30
+    ref_link_exp: int = 30

@@ -6,7 +6,7 @@ from app.repositories.base_repository import Repository
 class UsersRepository(Repository):
     model = Users
 
-    async def update_one(self, filters: dict, data: dict):
+    async def update_one(self, filters: dict, data: dict) -> object:
         query = update(self.model).where(self.model.login == filters['login']).values(**data).returning(self.model)
         res = await self.session.execute(query)
         return res.scalar_one()

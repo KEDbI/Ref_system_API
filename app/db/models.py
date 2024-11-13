@@ -15,6 +15,6 @@ class Users(Base):
     password: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
     ref_link: Mapped[str | None] = mapped_column(unique=True)
-    referer_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('users.id'))
+    referrer_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey('users.id'))
     ref_link_exp: Mapped[datetime | None]
 
