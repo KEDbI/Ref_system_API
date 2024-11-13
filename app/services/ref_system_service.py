@@ -10,10 +10,11 @@ from passlib.hash import pbkdf2_sha256
 
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
-from app.api.schemas.ref_system import GetRefLinkByEmailResponse, GetRefLinkByEmail, GetReferralsById, UpdateRefLink
+from app.api.schemas.ref_system import GetRefLinkByEmailResponse, UpdateRefLink
 from app.api.schemas.users import RegisterUser, UserResponse
 from app.utils.unitofwork import IUnitOfWork
 from app.core.security import create_jwt
+from app.utils.hunter_io_api import verify_email
 
 class RefSystemService:
     def __init__(self, uow: IUnitOfWork):
@@ -37,17 +38,21 @@ class RefSystemService:
         db = await self.uow.users.select_one(required_field)
         if db:
             raise HTTPException(status_code=400,
-                                detail=f'This {[i for i in required_field.keys()][0]} already exists!')
-
+                                detail=f'This {[i for i in required_field.keys()][0]} already registered!')
 
     async def register_user(self, user: RegisterUser) -> UserResponse:
         async with self.uow:
-            # проверка наличия логина и почты в бд, если ее не делать, то, если логин или почта уже есть в бд,
-            # выпадет IntegrityError. Можно было бы все сделать через try/except, но так было бы непонятно, из-за чего
-            # конкретно выпала ошибка (из-за почти или из-за логина)
-            user_db = await self._check_unique_field({'login': user.login})
-            email_db = await self._check_unique_field({'email': user.email})
+            # проверка почты в сервисе hunter io
+            check_email = await verify_email(user.email)
 
+            if check_email:
+                # Проверка наличия логина и почты в бд, если ее не делать, то, если логин или почта уже есть в бд,
+                # выпадет IntegrityError. Можно было бы все сделать через try/except,
+                # но так было бы непонятно, из-за чего конкретно выпала ошибка (из-за почты или из-за логина)
+                user_db = await self._check_unique_field({'login': user.login})
+                email_db = await self._check_unique_field({'email': user.email})
+            else:
+                raise HTTPException(status_code=400, detail="Such email doesn't exist")
 
             user.password = pbkdf2_sha256.hash(user.password)
             user_dict = user.model_dump()
@@ -59,7 +64,6 @@ class RefSystemService:
                     user_dict['ref_link'] = None
                     user_dict['referrer_id'] = referrer_id.id
                 raise HTTPException(status_code=400, detail="Such referral link doesn't exist")
-
 
             user_to_db = await self.uow.users.insert_one(user_dict)
             user_response = UserResponse.model_validate(user_to_db)

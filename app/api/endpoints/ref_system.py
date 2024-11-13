@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 
 from app.api.schemas.users import UserResponse, RegisterUser
-from app.api.schemas.ref_system import GetRefLinkByEmailResponse, GetRefLinkByEmail, GetReferralsById, UpdateRefLink
+from app.api.schemas.ref_system import GetRefLinkByEmailResponse, UpdateRefLink
 from app.utils.unitofwork import IUnitOfWork, UnitOfWork
 from app.services.ref_system_service import RefSystemService
 from app.core.security import get_user_from_token

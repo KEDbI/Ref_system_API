@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     TOKEN_EXP_MIN: int
     JWT_ALG: str
 
+    HUNTER_API_KEY: str
+
     @property
     def async_database_url(self):
         return f'postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}'
